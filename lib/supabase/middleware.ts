@@ -1,0 +1,56 @@
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
+
+export async function updateSession(request: NextRequest) {
+  console.log("[v0] Middleware running for:", request.nextUrl.pathname)
+
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
+        },
+      },
+    },
+  )
+
+  await supabase.auth.getSession()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  console.log("[v0] User in middleware:", user ? "authenticated" : "not authenticated")
+
+  if (user && request.nextUrl.pathname.startsWith("/auth")) {
+    console.log("[v0] Redirecting authenticated user from auth page to dashboard")
+    const url = request.nextUrl.clone()
+    url.pathname = "/dashboard"
+    return NextResponse.redirect(url)
+  }
+
+  const protectedRoutes = ["/dashboard", "/bookings", "/venues", "/payments", "/analytics", "/settings"]
+  const isProtectedRoute = protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
+
+  if (!user && isProtectedRoute) {
+    console.log("[v0] Redirecting unauthenticated user to login")
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/login"
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
+}
