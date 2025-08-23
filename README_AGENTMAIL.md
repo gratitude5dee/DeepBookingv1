@@ -39,3 +39,16 @@ Notes:
 - Authorization: Bearer ${AGENTMAIL_API_KEY} to ${AGENTMAIL_BASE_URL}
 - Endpoints used: /inboxes, /aliases, /send
 - Strategy: default per-booking; if venue strategy fails alias creation, falls back to booking and schedules alias creation
+
+Updates:
+- New API routes:
+  - GET/POST/PATCH /api/contracts
+  - POST /api/contracts/send
+  - GET/POST/PATCH /api/payments
+  - POST /api/payments/send
+  - POST /api/bookings/reneg
+
+UI wiring:
+- ContractManagement: lists, creates, and sends contracts via the API.
+- PaymentProcessing: lists and creates payment links, can email links.
+- Bookings (counter-offer): persists renegotiation and can email a counter-offer using AgentMail strategy.

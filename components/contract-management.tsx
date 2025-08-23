@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,45 +23,37 @@ interface Contract {
   documentUrl?: string
 }
 
-const mockContracts: Contract[] = [
-  {
-    id: "1",
-    bookingId: "BK001",
-    venueName: "The Fillmore",
-    artistName: "Electric Dreams",
-    eventDate: "2024-12-15",
-    status: "signed",
-    amount: 2500,
-    createdAt: "2024-12-01",
-    signedAt: "2024-12-03",
-    documentUrl: "/contracts/contract-001.pdf",
-  },
-  {
-    id: "2",
-    bookingId: "BK002",
-    venueName: "Fox Theater",
-    artistName: "Midnight Groove",
-    eventDate: "2024-12-18",
-    status: "sent",
-    amount: 3200,
-    createdAt: "2024-12-05",
-  },
-  {
-    id: "3",
-    bookingId: "BK003",
-    venueName: "The Independent",
-    artistName: "Sonic Wave",
-    eventDate: "2024-12-22",
-    status: "draft",
-    amount: 1800,
-    createdAt: "2024-12-08",
-  },
-]
+const mockContracts: Contract[] = []
 
 export default function ContractManagement() {
   const [contracts, setContracts] = useState<Contract[]>(mockContracts)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [formBookingId, setFormBookingId] = useState("")
+  const [formAmount, setFormAmount] = useState("")
   const { toast } = useToast()
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await fetch("/api/contracts", { method: "GET" })
+        const j = await res.json()
+        const items = (j?.data || []) as any[]
+        const mapped: Contract[] = items.map((r) => ({
+          id: r.id,
+          bookingId: r.booking_id,
+          venueName: r.venue_name || "",
+          artistName: r.artist_name || "",
+          eventDate: r.performance_date || "",
+          status: r.status,
+          amount: Number(r.amount || 0),
+          createdAt: r.created_at,
+          signedAt: r.signed_at,
+          documentUrl: r.document_url || undefined,
+        }))
+        setContracts(mapped)
+      } catch {}
+    })()
+  }, [])
 
   const getStatusColor = (status: Contract["status"]) => {
     switch (status) {
@@ -93,23 +85,73 @@ export default function ContractManagement() {
     }
   }
 
-  const handleSendContract = (contractId: string) => {
-    setContracts((prev) =>
-      prev.map((contract) => (contract.id === contractId ? { ...contract, status: "sent" as const } : contract)),
-    )
-
-    toast({
-      title: "Contract Sent",
-      description: "The contract has been sent to the artist for signature.",
-    })
+  const handleSendContract = async (contractId: string) => {
+    const email = typeof window !== "undefined" ? window.prompt("Recipient email") : ""
+    if (!email) return
+    try {
+      const res = await fetch("/api/contracts/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractId, recipientEmail: email }),
+      })
+      if (!res.ok) throw new Error("send_failed")
+      const list = await fetch("/api/contracts")
+      const j = await list.json()
+      const items = (j?.data || []) as any[]
+      const mapped: Contract[] = items.map((r) => ({
+        id: r.id,
+        bookingId: r.booking_id,
+        venueName: r.venue_name || "",
+        artistName: r.artist_name || "",
+        eventDate: r.performance_date || "",
+        status: r.status,
+        amount: Number(r.amount || 0),
+        createdAt: r.created_at,
+        signedAt: r.signed_at,
+        documentUrl: r.document_url || undefined,
+      }))
+      setContracts(mapped)
+      toast({ title: "Contract Sent", description: "The contract has been sent to the artist for signature." })
+    } catch {
+      toast({ title: "Failed to send", description: "Please try again.", variant: "destructive" as any })
+    }
   }
 
-  const handleGenerateContract = () => {
-    toast({
-      title: "Contract Generated",
-      description: "A new contract has been created and is ready for review.",
-    })
-    setIsDialogOpen(false)
+  const handleGenerateContract = async () => {
+    if (!formBookingId || !formAmount) {
+      toast({ title: "Missing fields", description: "Booking ID and Amount are required.", variant: "destructive" as any })
+      return
+    }
+    try {
+      const res = await fetch("/api/contracts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: formBookingId, amount: Number(formAmount) }),
+      })
+      if (!res.ok) throw new Error("create_failed")
+      const list = await fetch("/api/contracts")
+      const j = await list.json()
+      const items = (j?.data || []) as any[]
+      const mapped: Contract[] = items.map((r) => ({
+        id: r.id,
+        bookingId: r.booking_id,
+        venueName: r.venue_name || "",
+        artistName: r.artist_name || "",
+        eventDate: r.performance_date || "",
+        status: r.status,
+        amount: Number(r.amount || 0),
+        createdAt: r.created_at,
+        signedAt: r.signed_at,
+        documentUrl: r.document_url || undefined,
+      }))
+      setContracts(mapped)
+      toast({ title: "Contract Generated", description: "A new contract has been created." })
+      setIsDialogOpen(false)
+      setFormBookingId("")
+      setFormAmount("")
+    } catch {
+      toast({ title: "Failed to create", description: "Please try again.", variant: "destructive" as any })
+    }
   }
 
   return (
@@ -134,16 +176,18 @@ export default function ContractManagement() {
                   <DialogTitle>Generate New Contract</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Select>
-                    <SelectTrigger className="glass-panel border-0">
-                      <SelectValue placeholder="Select Booking" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BK004">BK004 - The Warfield - Rock Band X</SelectItem>
-                      <SelectItem value="BK005">BK005 - Great American Music Hall - Jazz Trio</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input placeholder="Contract Amount ($)" className="glass-panel border-0" />
+                  <Input
+                    placeholder="Booking ID"
+                    className="glass-panel border-0"
+                    value={formBookingId}
+                    onChange={(e: any) => setFormBookingId(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Contract Amount ($)"
+                    className="glass-panel border-0"
+                    value={formAmount}
+                    onChange={(e: any) => setFormAmount(e.target.value)}
+                  />
                   <Select>
                     <SelectTrigger className="glass-panel border-0">
                       <SelectValue placeholder="Contract Template" />
@@ -246,7 +290,7 @@ export default function ContractManagement() {
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Button>
-                      {contract.status === "draft" && (
+                      {(contract.status === "draft" || contract.status === "sent") && (
                         <Button
                           size="sm"
                           onClick={() => handleSendContract(contract.id)}
