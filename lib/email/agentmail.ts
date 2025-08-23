@@ -17,12 +17,27 @@ async function simulateSend(): Promise<void> {
 class AgentMailClient implements EmailClient {
   async send(input: SendEmailInput): Promise<SendEmailResult> {
     const dev = env("AGENTMAIL_DEV_MODE", "true") === "true"
-    if (dev) {
+    try {
+      if (dev) {
+        await simulateSend()
+        console.log("[AgentMail][dev] send", {
+          from: input.from,
+          to: input.to,
+          subject: input.subject,
+        })
+        return { id: genId(), status: "sent" }
+      }
       await simulateSend()
+      console.log("[AgentMail] send", {
+        from: input.from,
+        to: input.to,
+        subject: input.subject,
+      })
       return { id: genId(), status: "sent" }
+    } catch (err) {
+      console.error("[AgentMail] send error", err)
+      return { id: genId(), status: "failed" }
     }
-    await simulateSend()
-    return { id: genId(), status: "sent" }
   }
 }
 

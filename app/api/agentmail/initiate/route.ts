@@ -38,7 +38,7 @@ function buildAddresses(bookingId: string, venueName: string, venueSlug: string 
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Body
-    const { bookingId, venueId, venueName, venueSlug, offerAmount, showDate, recipientEmail } = body
+    const { bookingId, venueId, venueName, venueSlug, offerAmount, showDate, recipientEmail, strategy } = body
     if (!bookingId || !venueId || !venueName || !recipientEmail || !offerAmount || !showDate) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 })
     }
@@ -47,7 +47,9 @@ export async function POST(req: Request) {
 
     const { bookingAddress, venueAddress } = buildAddresses(bookingId, venueName, venueSlug)
     const fromName = env("AGENTMAIL_FROM_NAME", "AgentMail")!
-    const from = `${fromName} <${bookingAddress}>`
+    const useVenue = strategy === "venue"
+    const chosenFromAddress = useVenue ? venueAddress : bookingAddress
+    const from = `${fromName} <${chosenFromAddress}>`
 
     const client = getEmailClient()
     const html = `
@@ -83,7 +85,7 @@ export async function POST(req: Request) {
       recipients: [recipientEmail],
       sent_at: new Date().toISOString(),
       metadata: { venueId, venueName },
-      from_address: bookingAddress,
+      from_address: chosenFromAddress,
       provider_message_id: result.id,
       status: result.status,
     })
@@ -95,6 +97,8 @@ export async function POST(req: Request) {
       venueId,
       address_booking: bookingAddress,
       address_venue: venueAddress,
+      selected_from: chosenFromAddress,
+      mode: strategy === "venue" ? "per-venue" : "per-booking",
       provider_message_id: result.id,
       status: result.status,
       echoId: genId(),

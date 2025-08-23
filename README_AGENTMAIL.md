@@ -13,8 +13,13 @@ Env:
 
 API:
 - POST /api/agentmail/initiate
-  body: { bookingId, venueId, venueName, venueSlug?, offerAmount, showDate, recipientEmail }
-  response: { address_booking, address_venue, provider_message_id, status }
+  body: {
+    bookingId, venueId, venueName, venueSlug?, offerAmount, showDate, recipientEmail,
+    strategy?: "booking" | "venue"  # default "booking"
+  }
+  response: {
+    address_booking, address_venue, selected_from, mode, provider_message_id, status
+  }
 
 DB:
 - scripts/004_add_agentmail.sql introduces agentmail_inboxes and extends emails.
