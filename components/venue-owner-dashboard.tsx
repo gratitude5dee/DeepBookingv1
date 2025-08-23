@@ -199,7 +199,7 @@ export function VenueOwnerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-black">Venue Owner Dashboard</h1>
+          <h1 className="text-3xl font-bold text-black">Bookings Dashboard</h1>
           <p className="text-gray-600 mt-1">Manage your venues, bookings, and grow your business</p>
         </div>
         <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">

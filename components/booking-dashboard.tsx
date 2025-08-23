@@ -37,6 +37,7 @@ export default function BookingDashboard() {
 
   const navigationItems = [
     { id: "booky", label: "Booky", icon: MapPin },
+    { id: "venue-owner", label: "Dashboard", icon: Building2 },
     { id: "overview", label: "Overview", icon: Users },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "venues", label: "Venues", icon: MapPin },
@@ -44,7 +45,6 @@ export default function BookingDashboard() {
     { id: "contracts", label: "Contracts", icon: FileText },
     { id: "payments", label: "Payments", icon: DollarSign },
     { id: "emails", label: "Emails", icon: Mail },
-    { id: "venue-owner", label: "Venue Owner", icon: Building2 },
   ]
 
   return (
@@ -73,7 +73,7 @@ export default function BookingDashboard() {
               <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
                 DeepBooking
               </h1>
-              <p className="text-sm text-white/60 font-medium">Booking Platform</p>
+              <p className="text-sm text-black/80 font-medium">Booking Platform</p>
             </div>
             <Button
               variant="ghost"
@@ -81,7 +81,7 @@ export default function BookingDashboard() {
               className="lg:hidden hover:bg-white/10 rounded-xl p-2"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="w-5 h-5 text-white/80" />
+              <X className="w-5 h-5 text-black/80" />
             </Button>
           </div>
 
@@ -98,8 +98,8 @@ export default function BookingDashboard() {
                 }}
                 className={`w-full justify-start text-base font-medium py-4 px-5 rounded-2xl transition-all duration-300 ${
                   activeTab === id
-                    ? "bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-white shadow-lg shadow-cyan-500/25 border border-cyan-400/30 backdrop-blur-xl"
-                    : "hover:bg-white/10 text-white/80 hover:text-white hover:shadow-lg hover:shadow-white/10 hover:scale-[1.02]"
+                    ? "bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-black shadow-lg shadow-cyan-500/25 border border-cyan-400/30 backdrop-blur-xl"
+                    : "hover:bg-white/10 text-black/80 hover:text-black hover:shadow-lg hover:shadow-white/10 hover:scale-[1.02]"
                 } ${index === 0 ? "relative overflow-hidden" : ""}`}
               >
                 <Icon className="w-5 h-5 mr-4 flex-shrink-0" />
@@ -132,7 +132,7 @@ export default function BookingDashboard() {
             </Button>
             <Button
               variant="outline"
-              className="w-full glass-card bg-white/5 hover:bg-white/15 border-white/20 hover:border-white/30 text-white font-semibold py-4 px-6 rounded-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+              className="w-full glass-card bg-white/5 hover:bg-white/15 border-white/20 hover:border-white/30 text-black font-semibold py-4 px-6 rounded-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
               onClick={handleMessagesClick}
             >
               <Mail className="w-5 h-5 mr-3" />
@@ -262,6 +262,8 @@ export default function BookingDashboard() {
             </div>
           )}
 
+          {activeTab === "venue-owner" && <VenueOwnerDashboard />}
+
           {activeTab === "analytics" && <AnalyticsDashboard />}
 
           {activeTab === "venues" && (
@@ -305,8 +307,6 @@ export default function BookingDashboard() {
           {activeTab === "emails" && <EmailWorkflowSystem />}
 
           {activeTab === "booky" && <BookyPage />}
-
-          {activeTab === "venue-owner" && <VenueOwnerDashboard />}
         </div>
       </main>
     </div>

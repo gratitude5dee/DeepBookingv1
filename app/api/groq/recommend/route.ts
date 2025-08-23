@@ -1,30 +1,31 @@
 import { type NextRequest, NextResponse } from "next/server"
-import Groq from "groq-sdk"
+import { GroqAPIManager } from "@/lib/groq-api-manager"
+
+let groqManager: GroqAPIManager | null = null
+
+function getGroqManager(): GroqAPIManager | null {
+  if (!groqManager && process.env.GROQ_API_KEY) {
+    try {
+      groqManager = new GroqAPIManager(process.env.GROQ_API_KEY)
+    } catch (error) {
+      console.error("[v0] Failed to initialize Groq API Manager:", error)
+      return null
+    }
+  }
+  return groqManager
+}
 
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] Groq API route called")
 
-    let groq: Groq | null = null
-    try {
-      if (process.env.GROQ_API_KEY) {
-        groq = new Groq({
-          apiKey: process.env.GROQ_API_KEY,
-          dangerouslyAllowBrowser: true,
-        })
-        console.log("[v0] Groq client initialized successfully")
-      } else {
-        console.error("[v0] GROQ_API_KEY environment variable not found")
-      }
-    } catch (error) {
-      console.error("[v0] Failed to initialize Groq client:", error)
-    }
-
-    if (!groq) {
-      console.error("[v0] Groq client not initialized - using fallback recommendations")
+    const manager = getGroqManager()
+    if (!manager) {
+      console.error("[v0] Groq API Manager not available - check GROQ_API_KEY")
       return NextResponse.json({
         recommendations: getFallbackRecommendations(),
         source: "fallback",
+        error: "API manager not available",
       })
     }
 
@@ -36,86 +37,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
 
-    console.log("[v0] Making Groq API call...")
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert event planner and venue specialist with deep knowledge of San Francisco Bay Area venues. 
-          
-          IMPORTANT: You must respond with ONLY a valid JSON array. No additional text, explanations, or markdown formatting.
-          
-          Each venue recommendation should have this exact structure:
-          {
-            "name": "Venue Name",
-            "reason": "Why it's perfect for this event",
-            "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-            "setup": "Suggested layout and setup description",
-            "catering": "Catering recommendations and options",
-            "costBreakdown": {
-              "venue": 2000,
-              "catering": 3000,
-              "extras": 500,
-              "total": 5500
-            }
-          }
-          
-          Provide exactly 3 venue recommendations in a JSON array format.`,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      max_tokens: 2000,
-    })
+    const result = await manager.getRecommendations(prompt)
 
-    console.log("[v0] Groq API response received")
-    const content = completion.choices[0]?.message?.content
-    console.log("[v0] Raw content:", content?.substring(0, 200) + "...")
-
-    let recommendations
-    try {
-      if (content) {
-        // Try to parse the entire content as JSON first
-        try {
-          recommendations = JSON.parse(content.trim())
-        } catch {
-          // Try to extract JSON array from the response
-          const jsonMatch = content.match(/\[[\s\S]*\]/)
-          if (jsonMatch) {
-            recommendations = JSON.parse(jsonMatch[0])
-          } else {
-            throw new Error("No valid JSON found")
-          }
-        }
-      }
-
-      // Validate that we have an array with proper structure
-      if (!Array.isArray(recommendations) || recommendations.length === 0) {
-        throw new Error("Invalid recommendations format")
-      }
-
-      console.log("[v0] Successfully parsed", recommendations.length, "recommendations")
-      return NextResponse.json({ recommendations, source: "groq" })
-    } catch (parseError) {
-      console.error("[v0] JSON parsing error:", parseError)
-      console.log("[v0] Using fallback recommendations due to parsing error")
-      return NextResponse.json({
-        recommendations: getFallbackRecommendations(),
-        source: "fallback",
-      })
+    console.log(`[v0] Returning ${result.recommendations.length} recommendations from ${result.source}`)
+    if (result.performance) {
+      console.log(
+        `[v0] Request completed in ${result.performance.duration}ms with ${result.performance.retries} retries`,
+      )
     }
-  } catch (error) {
-    console.error("[v0] Groq API error:", error)
-    console.log("[v0] Using fallback recommendations due to API error")
 
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error("[v0] Unexpected error in API route:", error)
     return NextResponse.json({
       recommendations: getFallbackRecommendations(),
       source: "fallback",
-      note: "Using fallback recommendations due to API unavailability",
+      error: "Unexpected server error",
     })
   }
 }
