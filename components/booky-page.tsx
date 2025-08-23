@@ -20,7 +20,9 @@ import {
   Bookmark,
   MapPin,
   Loader2,
+  Sparkles,
 } from "lucide-react"
+import { AIVenueRecommender } from "@/components/ai-venue-recommender"
 
 declare global {
   interface Window {
@@ -48,7 +50,7 @@ const mockVenues: Venue[] = [
     rating: 4.8,
     description:
       "Historic music venue with incredible acoustics and legendary performances. Perfect for concerts and live music events.",
-    image: "/placeholder.svg?height=300&width=400&text=The+Fillmore",
+    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&crop=center",
     category: "Concert Hall",
     latitude: 37.7849,
     longitude: -122.4324,
@@ -60,7 +62,7 @@ const mockVenues: Venue[] = [
     rating: 4.6,
     description:
       "Beautifully restored 1928 theater featuring state-of-the-art sound and lighting systems for unforgettable performances.",
-    image: "/placeholder.svg?height=300&width=400&text=Fox+Theater",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center",
     category: "Theater",
     latitude: 37.8081,
     longitude: -122.2711,
@@ -72,7 +74,7 @@ const mockVenues: Venue[] = [
     rating: 4.5,
     description:
       "Intimate venue known for showcasing emerging artists and established acts in a cozy, welcoming atmosphere.",
-    image: "/placeholder.svg?height=300&width=400&text=The+Independent",
+    image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400&h=300&fit=crop&crop=center",
     category: "Music Venue",
     latitude: 37.7749,
     longitude: -122.437,
@@ -84,7 +86,7 @@ const mockVenues: Venue[] = [
     rating: 4.7,
     description:
       "Victorian-era venue with ornate architecture, offering an elegant setting for diverse musical performances.",
-    image: "/placeholder.svg?height=300&width=400&text=Great+American+Music+Hall",
+    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=300&fit=crop&crop=center",
     category: "Historic Venue",
     latitude: 37.7849,
     longitude: -122.4194,
@@ -101,6 +103,7 @@ export default function BookyPage() {
   const [animationPhase, setAnimationPhase] = useState<"idle" | "searching" | "results">("idle")
   const [visibleCards, setVisibleCards] = useState<number>(0)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
+  const [activeTab, setActiveTab] = useState<"search" | "ai">("search")
 
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<any>(null)
@@ -115,7 +118,6 @@ export default function BookyPage() {
     setAnimationPhase("searching")
     setLoadingText("searching...")
 
-    // Simulate search process
     setTimeout(() => {
       setLoadingText("thinking...")
     }, 1000)
@@ -131,7 +133,6 @@ export default function BookyPage() {
 
   useEffect(() => {
     if (showResults && mapContainer.current && !map.current) {
-      // Load Mapbox GL JS dynamically
       const script = document.createElement("script")
       script.src = "https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"
       script.onload = () => {
@@ -151,7 +152,6 @@ export default function BookyPage() {
             attributionControl: false,
           })
 
-          // Add markers for venues
           venues.forEach((venue, index) => {
             const markerElement = document.createElement("div")
             markerElement.className = "custom-marker"
@@ -241,7 +241,6 @@ export default function BookyPage() {
   const handleLoadMore = async () => {
     setIsLoadingMore(true)
 
-    // Simulate loading more venues
     setTimeout(() => {
       const newVenue: Venue = {
         id: `${venues.length + 1}`,
@@ -250,7 +249,7 @@ export default function BookyPage() {
         rating: 4.4,
         description:
           "Historic theater in the heart of San Francisco, featuring diverse entertainment from concerts to comedy shows.",
-        image: "/placeholder.svg?height=300&width=400&text=The+Warfield",
+        image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop&crop=center",
         category: "Theater",
         latitude: 37.7833,
         longitude: -122.4167,
@@ -281,12 +280,10 @@ export default function BookyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-4 lg:p-6 relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">
-        {/* Animated gradient orbs */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full blur-3xl animate-float-slow" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-indigo-200/20 to-pink-200/20 rounded-full blur-3xl animate-float-reverse" />
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-200/15 to-blue-200/15 rounded-full blur-2xl animate-pulse-slow" />
 
-        {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
@@ -296,206 +293,265 @@ export default function BookyPage() {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div
-          className={`max-w-2xl mx-auto mb-8 transition-all duration-700 ease-out ${
-            animationPhase === "searching" ? "transform -translate-y-4 scale-105" : ""
-          }`}
-        >
-          <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 hover:shadow-2xl transition-all duration-500">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex-1 relative">
-                  <Search
-                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
-                      isLoading ? "text-blue-500 animate-pulse" : "text-gray-400"
-                    }`}
-                  />
-                  <Input
-                    value={isLoading ? loadingText : searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="find me performance venues in the Bay Area"
-                    className="pl-10 pr-4 py-3 text-base border-0 focus:ring-0 bg-transparent placeholder:text-gray-400"
-                    disabled={isLoading}
-                  />
-                  {isLoading && loadingText.includes("...") && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="flex space-x-1">
-                        <div
-                          className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: "0ms" }}
-                        />
-                        <div
-                          className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: "150ms" }}
-                        />
-                        <div
-                          className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: "300ms" }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100/80 transition-colors duration-200">
-                    <Mic className="w-5 h-5 text-gray-400" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100/80 transition-colors duration-200">
-                    <Paperclip className="w-5 h-5 text-gray-400" />
-                  </Button>
-                  <Button
-                    onClick={handleSearch}
-                    disabled={isLoading || !searchQuery.trim()}
-                    className="bg-black hover:bg-gray-800 text-white rounded-full p-3 disabled:opacity-50 transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    <ArrowRight className="w-5 h-5" />
-                  </Button>
-                </div>
+        <div className="max-w-2xl mx-auto mb-6">
+          <div className="flex items-center justify-center">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-2 shadow-lg border ring-1 ring-black/5">
+              <div className="flex gap-2">
+                <Button
+                  variant={activeTab === "search" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveTab("search")}
+                  className={`rounded-xl px-6 py-2 transition-all duration-300 ${
+                    activeTab === "search"
+                      ? "bg-black text-white shadow-lg"
+                      : "text-gray-600 hover:text-black hover:bg-gray-100/80"
+                  }`}
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Search Venues
+                </Button>
+                <Button
+                  variant={activeTab === "ai" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveTab("ai")}
+                  className={`rounded-xl px-6 py-2 transition-all duration-300 ${
+                    activeTab === "ai"
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                      : "text-gray-600 hover:text-black hover:bg-gray-100/80"
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI Recommender
+                  <Badge className="ml-2 bg-purple-100 text-purple-700 text-xs">NEW</Badge>
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        {isLoading && (
-          <div className="max-w-2xl mx-auto mb-8 animate-fade-in">
-            <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5">
-              <CardContent className="p-8 text-center">
-                <div className="relative">
-                  <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4" />
-                  <div className="absolute inset-0 w-10 h-10 mx-auto">
-                    <div className="w-full h-full border-2 border-blue-200 rounded-full animate-ping" />
-                  </div>
-                </div>
-                <p className="text-gray-700 font-medium">Finding the perfect venues for you...</p>
-                <div className="mt-3 flex justify-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: "200ms" }} />
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: "400ms" }} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Results Section */}
-        {showResults && (
-          <div className="space-y-8 animate-slide-up">
-            <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
-              <CardContent className="p-0">
-                <div className="relative h-80 bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100">
-                  <div ref={mapContainer} className="w-full h-full" />
-
-                  {/* Zoom Controls */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-white/90 backdrop-blur-sm p-2 hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg"
-                      onClick={handleZoomIn}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-white/90 backdrop-blur-sm p-2 hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg"
-                      onClick={handleZoomOut}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {venues.map((venue, index) => (
-                <Card
-                  key={venue.id}
-                  className={`group bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 overflow-hidden hover:shadow-2xl hover:ring-black/10 transition-all duration-500 cursor-pointer ${
-                    index < visibleCards ? "animate-card-reveal" : "opacity-0 translate-y-8"
-                  }`}
-                  style={{
-                    animationDelay: `${index * 150}ms`,
-                    transform: index < visibleCards ? "none" : "translateY(32px)",
-                  }}
-                >
-                  <div className="aspect-[4/3] relative overflow-hidden">
-                    <img
-                      src={venue.image || "/placeholder.svg"}
-                      alt={venue.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Badge className="absolute top-3 right-3 bg-white/95 text-gray-800 backdrop-blur-sm shadow-lg transform group-hover:scale-105 transition-transform duration-200">
-                      {venue.category}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-200">
-                          {venue.name}
-                        </h3>
-                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{venue.address}</span>
+        {activeTab === "search" ? (
+          <>
+            <div
+              className={`max-w-2xl mx-auto mb-8 transition-all duration-700 ease-out ${
+                animationPhase === "searching" ? "transform -translate-y-4 scale-105" : ""
+              }`}
+            >
+              <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 hover:shadow-2xl transition-all duration-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 relative">
+                      <Search
+                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
+                          isLoading ? "text-blue-500 animate-pulse" : "text-gray-400"
+                        }`}
+                      />
+                      <Input
+                        value={isLoading ? loadingText : searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="find me performance venues in the Bay Area"
+                        className="pl-10 pr-4 py-3 text-base border-0 focus:ring-0 bg-transparent placeholder:text-gray-400"
+                        disabled={isLoading}
+                      />
+                      {isLoading && loadingText.includes("...") && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="flex space-x-1">
+                            <div
+                              className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "0ms" }}
+                            />
+                            <div
+                              className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "150ms" }}
+                            />
+                            <div
+                              className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "300ms" }}
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-semibold text-gray-900">{venue.rating}/5</span>
-                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 hover:bg-gray-100/80 transition-colors duration-200"
+                      >
+                        <Mic className="w-5 h-5 text-gray-400" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 hover:bg-gray-100/80 transition-colors duration-200"
+                      >
+                        <Paperclip className="w-5 h-5 text-gray-400" />
+                      </Button>
+                      <Button
+                        onClick={handleSearch}
+                        disabled={isLoading || !searchQuery.trim()}
+                        className="bg-black hover:bg-gray-800 text-white rounded-full p-3 disabled:opacity-50 transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {isLoading && (
+              <div className="max-w-2xl mx-auto mb-8 animate-fade-in">
+                <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5">
+                  <CardContent className="p-8 text-center">
+                    <div className="relative">
+                      <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4" />
+                      <div className="absolute inset-0 w-10 h-10 mx-auto">
+                        <div className="w-full h-full border-2 border-blue-200 rounded-full animate-ping" />
                       </div>
-                      <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{venue.description}</p>
-                      <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
-                          >
-                            <Heart className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all duration-200 rounded-full"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-2 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 transition-all duration-200 rounded-full"
-                          >
-                            <Bookmark className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    </div>
+                    <p className="text-gray-700 font-medium">Finding the perfect venues for you...</p>
+                    <div className="mt-3 flex justify-center space-x-1">
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"
+                        style={{ animationDelay: "0ms" }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"
+                        style={{ animationDelay: "200ms" }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"
+                        style={{ animationDelay: "400ms" }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {showResults && (
+              <div className="space-y-8 animate-slide-up">
+                <Card className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
+                  <CardContent className="p-0">
+                    <div className="relative h-80 bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100">
+                      <div ref={mapContainer} className="w-full h-full" />
+
+                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-white/90 backdrop-blur-sm p-2 hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg"
+                          onClick={handleZoomIn}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-white/90 backdrop-blur-sm p-2 hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg"
+                          onClick={handleZoomOut}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
 
-              <Card
-                className="group bg-gradient-to-br from-gray-50/80 to-gray-100/80 backdrop-blur-xl border-2 border-dashed border-gray-300 rounded-2xl hover:border-gray-400 hover:bg-gradient-to-br hover:from-gray-100/80 hover:to-gray-200/80 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-xl"
-                onClick={handleLoadMore}
-              >
-                <CardContent className="p-6 h-full flex flex-col items-center justify-center text-center">
-                  {isLoadingMore ? (
-                    <>
-                      <Loader2 className="w-10 h-10 text-gray-500 animate-spin mb-3" />
-                      <div className="w-8 h-8 border-2 border-gray-300 rounded-full animate-ping absolute" />
-                    </>
-                  ) : (
-                    <Plus className="w-10 h-10 text-gray-500 mb-3 group-hover:scale-110 group-hover:text-gray-700 transition-all duration-200" />
-                  )}
-                  <p className="text-gray-700 font-semibold">{isLoadingMore ? "Loading..." : "Add more"}</p>
-                  <p className="text-gray-500 text-sm mt-1">Discover venues</p>
-                </CardContent>
-              </Card>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {venues.map((venue, index) => (
+                    <Card
+                      key={venue.id}
+                      className={`group bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border-0 ring-1 ring-black/5 overflow-hidden hover:shadow-2xl hover:ring-black/10 transition-all duration-500 cursor-pointer ${
+                        index < visibleCards ? "animate-card-reveal" : "opacity-0 translate-y-8"
+                      }`}
+                      style={{
+                        animationDelay: `${index * 150}ms`,
+                        transform: index < visibleCards ? "none" : "translateY(32px)",
+                      }}
+                    >
+                      <div className="aspect-[4/3] relative overflow-hidden">
+                        <img
+                          src={venue.image || "/placeholder.svg"}
+                          alt={venue.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <Badge className="absolute top-3 right-3 bg-white/95 text-gray-800 backdrop-blur-sm shadow-lg transform group-hover:scale-105 transition-transform duration-200">
+                          {venue.category}
+                        </Badge>
+                      </div>
+                      <CardContent className="p-6">
+                        <div className="space-y-3">
+                          <div>
+                            <h3 className="font-bold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                              {venue.name}
+                            </h3>
+                            <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                              <MapPin className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{venue.address}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm font-semibold text-gray-900">{venue.rating}/5</span>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{venue.description}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
+                              >
+                                <Heart className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all duration-200 rounded-full"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 transition-all duration-200 rounded-full"
+                              >
+                                <Bookmark className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  <Card
+                    className="group bg-gradient-to-br from-gray-50/80 to-gray-100/80 backdrop-blur-xl border-2 border-dashed border-gray-300 rounded-2xl hover:border-gray-400 hover:bg-gradient-to-br hover:from-gray-100/80 hover:to-gray-200/80 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-xl"
+                    onClick={handleLoadMore}
+                  >
+                    <CardContent className="p-6 h-full flex flex-col items-center justify-center text-center">
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="w-10 h-10 text-gray-500 animate-spin mb-3" />
+                          <div className="w-8 h-8 border-2 border-gray-300 rounded-full animate-ping absolute" />
+                        </>
+                      ) : (
+                        <Plus className="w-10 h-10 text-gray-500 mb-3 group-hover:scale-110 group-hover:text-gray-700 transition-all duration-200" />
+                      )}
+                      <p className="text-gray-700 font-semibold">{isLoadingMore ? "Loading..." : "Add more"}</p>
+                      <p className="text-gray-500 text-sm mt-1">Discover venues</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="animate-fade-in">
+            <AIVenueRecommender />
           </div>
         )}
       </div>
@@ -601,7 +657,6 @@ export default function BookyPage() {
           overflow: hidden;
         }
 
-        /* Updated custom marker and popup styles for direct mapbox implementation */
         :global(.custom-marker) {
           opacity: 0;
         }

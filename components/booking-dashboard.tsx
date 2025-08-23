@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Users, DollarSign, Mail, BarChart3, Bell, FileText, Menu, X } from "lucide-react"
+import { Calendar, MapPin, Users, DollarSign, Mail, BarChart3, Bell, FileText, Menu, X, Building2 } from "lucide-react"
 import InteractiveMap from "@/components/interactive-map"
 import VenueGrid from "@/components/venue-grid"
 import BookingManagementTable from "@/components/booking-management-table"
@@ -13,6 +13,7 @@ import ContractManagement from "@/components/contract-management"
 import PaymentProcessing from "@/components/payment-processing"
 import EmailWorkflowSystem from "@/components/email-workflow-system"
 import BookyPage from "@/components/booky-page"
+import { VenueOwnerDashboard } from "@/components/venue-owner-dashboard"
 import { useToast } from "@/hooks/use-toast"
 
 export default function BookingDashboard() {
@@ -35,6 +36,7 @@ export default function BookingDashboard() {
   }
 
   const navigationItems = [
+    { id: "booky", label: "Booky", icon: MapPin },
     { id: "overview", label: "Overview", icon: Users },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "venues", label: "Venues", icon: MapPin },
@@ -42,7 +44,7 @@ export default function BookingDashboard() {
     { id: "contracts", label: "Contracts", icon: FileText },
     { id: "payments", label: "Payments", icon: DollarSign },
     { id: "emails", label: "Emails", icon: Mail },
-    { id: "booky", label: "Booky", icon: MapPin },
+    { id: "venue-owner", label: "Venue Owner", icon: Building2 },
   ]
 
   return (
@@ -58,65 +60,86 @@ export default function BookingDashboard() {
       {/* Left Sidebar */}
       <aside
         className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-72
+        fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-80
         glass-panel border-r border-white/20
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
       >
-        <div className="flex flex-col h-full p-4 lg:p-6">
+        <div className="flex flex-col h-full p-6 lg:p-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-primary">DeepBooking</h1>
-              <p className="text-xs text-muted-foreground">Booking Platform</p>
+          <div className="flex items-center justify-between mb-10">
+            <div className="space-y-1">
+              <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
+                DeepBooking
+              </h1>
+              <p className="text-sm text-white/60 font-medium">Booking Platform</p>
             </div>
-            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
-              <X className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden hover:bg-white/10 rounded-xl p-2"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-5 h-5 text-white/80" />
             </Button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-2">
-            {navigationItems.map(({ id, label, icon: Icon }) => (
+          <nav className="flex-1 space-y-3">
+            {navigationItems.map(({ id, label, icon: Icon }, index) => (
               <Button
                 key={id}
                 variant={activeTab === id ? "default" : "ghost"}
-                size="sm"
+                size="lg"
                 onClick={() => {
                   setActiveTab(id)
                   setSidebarOpen(false)
                 }}
-                className={`w-full justify-start text-sm ${
+                className={`w-full justify-start text-base font-medium py-4 px-5 rounded-2xl transition-all duration-300 ${
                   activeTab === id
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "hover:bg-white/10 text-muted-foreground hover:text-foreground"
-                }`}
+                    ? "bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-white shadow-lg shadow-cyan-500/25 border border-cyan-400/30 backdrop-blur-xl"
+                    : "hover:bg-white/10 text-white/80 hover:text-white hover:shadow-lg hover:shadow-white/10 hover:scale-[1.02]"
+                } ${index === 0 ? "relative overflow-hidden" : ""}`}
               >
-                <Icon className="w-4 h-4 mr-3" />
-                {label}
-                {id === "booky" && <Badge className="ml-auto bg-cyan-500 text-white text-xs">NEW</Badge>}
+                <Icon className="w-5 h-5 mr-4 flex-shrink-0" />
+                <span className="flex-1 text-left">{label}</span>
+                {id === "booky" && (
+                  <>
+                    <Badge className="ml-auto bg-gradient-to-r from-cyan-400 to-cyan-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                      NEW
+                    </Badge>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 rounded-2xl animate-pulse" />
+                  </>
+                )}
+                {id === "venue-owner" && (
+                  <Badge className="ml-auto bg-gradient-to-r from-purple-400 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    OWNER
+                  </Badge>
+                )}
               </Button>
             ))}
           </nav>
 
           {/* Quick Actions */}
-          <div className="space-y-3 mt-6">
+          <div className="space-y-4 mt-8 pt-6 border-t border-white/10">
             <Button
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-[1.02] transform"
               onClick={handleNewBooking}
             >
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-5 h-5 mr-3" />
               Quick Book
             </Button>
             <Button
               variant="outline"
-              className="w-full glass-card bg-white/10 hover:bg-white/20 border-white/20 text-white font-medium py-2 px-4 rounded-xl backdrop-blur-xl transition-all duration-300"
+              className="w-full glass-card bg-white/5 hover:bg-white/15 border-white/20 hover:border-white/30 text-white font-semibold py-4 px-6 rounded-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
               onClick={handleMessagesClick}
             >
-              <Mail className="w-4 h-4 mr-2" />
-              Messages
-              <Badge className="ml-auto bg-red-500 text-white text-xs">3</Badge>
+              <Mail className="w-5 h-5 mr-3" />
+              <span className="flex-1 text-left">Messages</span>
+              <Badge className="ml-auto bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                3
+              </Badge>
             </Button>
           </div>
         </div>
@@ -282,6 +305,8 @@ export default function BookingDashboard() {
           {activeTab === "emails" && <EmailWorkflowSystem />}
 
           {activeTab === "booky" && <BookyPage />}
+
+          {activeTab === "venue-owner" && <VenueOwnerDashboard />}
         </div>
       </main>
     </div>
