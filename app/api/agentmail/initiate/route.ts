@@ -32,7 +32,90 @@ function buildAddresses(bookingId: string, venueName: string, venueSlug: string 
   const bookingAddress = `bq-${bookingId}@${domain}`
   const slug = venueSlug && venueSlug.length > 0 ? venueSlug : slugify(venueName)
   const venueAddress = `${slug}@${domain}`
-  return { bookingAddress, venueAddress }
+  return { bookingAddress, venueAddress, slug }
+}
+
+async function http(method: string, path: string, body?: any) {
+  const base = env("AGENTMAIL_BASE_URL", "https://api.agentmail.to") as string
+  const url = base.replace(/\/+$/, "") + path
+  const apiKey = env("AGENTMAIL_API_KEY", "") as string
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  }
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`
+
+  const timeoutMs = 10000
+  const maxRetries = 3
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        cache: "no-store",
+        signal: controller.signal,
+      })
+      clearTimeout(timer)
+      if (!res.ok) {
+        let err: any = {}
+        try {
+          err = await res.json()
+        } catch {}
+        const e: any = new Error(err.message || `HTTP ${res.status}`)
+        e.status = res.status
+        e.details = err
+        throw e
+      }
+      try {
+        return await res.json()
+      } catch {
+        return {}
+      }
+    } catch (e) {
+      clearTimeout(timer)
+      if (attempt === maxRetries - 1) throw e
+      const backoff = Math.pow(2, attempt) * 300
+      await new Promise((r) => setTimeout(r, backoff))
+    }
+  }
+  return {}
+}
+
+async function ensureInbox(address: string) {
+  const resp = await http("POST", "/inboxes", { address, type: "booking" }).catch(async (e: any) => {
+    if (e.status === 409) {
+      return { address, id: undefined }
+    }
+    throw e
+  })
+  const id = resp.id || resp.inbox_id
+  return { id, address: resp.address || address }
+}
+
+async function getAlias(address: string) {
+  try {
+    const resp = await http("GET", `/aliases/${encodeURIComponent(address)}`)
+    return { id: resp.id || resp.alias_id, address: resp.address || address, target: resp.target }
+  } catch (e: any) {
+    if (e.status === 404) return null
+    throw e
+  }
+}
+
+async function ensureAlias(address: string, target: string, metadata?: any) {
+  const existing = await getAlias(address)
+  if (existing) return existing
+  const resp = await http("POST", "/aliases", {
+    alias: address,
+    target,
+    type: "venue",
+    metadata: metadata || {},
+  })
+  return { id: resp.id || resp.alias_id, address: resp.address || address, target: resp.target || target }
 }
 
 export async function POST(req: Request) {
@@ -45,10 +128,29 @@ export async function POST(req: Request) {
 
     const supabase = await createSupabase()
 
-    const { bookingAddress, venueAddress } = buildAddresses(bookingId, venueName, venueSlug)
+    const { bookingAddress, venueAddress, slug } = buildAddresses(bookingId, venueName, venueSlug)
     const fromName = env("AGENTMAIL_FROM_NAME", "AgentMail")!
-    const useVenue = strategy === "venue"
-    const chosenFromAddress = useVenue ? venueAddress : bookingAddress
+    const wantVenue = strategy === "venue"
+
+    const inbox = await ensureInbox(bookingAddress)
+    let alias: { id?: string; address: string; target?: string } | null = null
+    let chosenFromAddress = bookingAddress
+    let mode = "per-booking"
+
+    if (wantVenue) {
+      try {
+        alias = await ensureAlias(venueAddress, bookingAddress, { bookingId, venueId, slug })
+        chosenFromAddress = venueAddress
+        mode = "per-venue"
+      } catch (e) {
+        chosenFromAddress = bookingAddress
+        mode = "per-booking"
+        setTimeout(() => {
+          ensureAlias(venueAddress, bookingAddress, { bookingId, venueId, slug, retry: true }).catch(() => {})
+        }, 0)
+      }
+    }
+
     const from = `${fromName} <${chosenFromAddress}>`
 
     const client = getEmailClient()
@@ -73,7 +175,11 @@ export async function POST(req: Request) {
         address_booking: bookingAddress,
         address_venue: venueAddress,
         provider: "agentmail",
-      },
+        provider_inbox_id: inbox.id || null,
+        provider_alias_id: alias?.id || null,
+        selected_from: chosenFromAddress,
+        mode,
+      } as any,
       { onConflict: "booking_id,venue_id" },
     )
 
@@ -98,9 +204,11 @@ export async function POST(req: Request) {
       address_booking: bookingAddress,
       address_venue: venueAddress,
       selected_from: chosenFromAddress,
-      mode: strategy === "venue" ? "per-venue" : "per-booking",
+      mode,
       provider_message_id: result.id,
       status: result.status,
+      provider_inbox_id: inbox.id || null,
+      provider_alias_id: alias?.id || null,
       echoId: genId(),
     }
 
