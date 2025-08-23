@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Filter, SortAsc } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const sampleVenues = [
   {
@@ -106,6 +107,7 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [venues, setVenues] = useState(sampleVenues)
+  const [strategy, setStrategy] = useState<"booking" | "venue">("booking")
 
   const filteredVenues = venues.filter((venue) => {
     const matchesSearch =
@@ -139,7 +141,7 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
             offerAmount: offer,
             showDate: date,
             recipientEmail: (venue as any)?.contactEmail || "",
-            strategy: "booking",
+            strategy,
           }),
         })
         await res.json().catch(() => ({}))
@@ -189,6 +191,18 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
               <SortAsc className="w-4 h-4 mr-2" />
               Sort
             </Button>
+        <div className="flex items-center gap-2 mt-4">
+          <span className="text-sm text-muted-foreground">From Address Strategy</span>
+          <Select value={strategy} onValueChange={(v) => setStrategy(v as "booking" | "venue")}>
+            <SelectTrigger className="w-[220px] glass-card bg-transparent">
+              <SelectValue placeholder="Select strategy" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="booking">Per-booking (bq-&lt;id&gt;@5-dee.com)</SelectItem>
+              <SelectItem value="venue">Per-venue (&lt;venue-slug&gt;@5-dee.com)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
           </div>
         </div>
 
