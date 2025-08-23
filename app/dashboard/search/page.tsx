@@ -139,15 +139,11 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <MapboxMap
-          venues={filteredVenues.map((venue) => ({
+        <MapboxMap 
+          venues={filteredVenues.map(venue => ({
             ...venue,
-            latitude: venue.id === "1" ? 40.7308 : venue.id === "2" ? 40.8098 : 40.7214,
-            longitude: venue.id === "1" ? -74.0014 : venue.id === "2" ? -73.9501 : -73.9576,
-            address: venue.location,
-            price_per_hour: Number.parseInt(venue.priceRange.split("-")[0].replace(/\D/g, "")) || 800,
-            rating: venue.rating,
-            type: venue.type,
+            lat: venue.id === "1" ? 40.7308 : venue.id === "2" ? 40.8098 : 40.7214,
+            lng: venue.id === "1" ? -74.0014 : venue.id === "2" ? -73.9501 : -73.9576
           }))}
           onVenueSelect={setSelectedVenue}
           selectedVenue={selectedVenue}

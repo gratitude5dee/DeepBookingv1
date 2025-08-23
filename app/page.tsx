@@ -1,16 +1,12 @@
 "use client"
 
-import Header from "@/components/header"
-import HeroContent from "@/components/hero-content"
-import PulsingCircle from "@/components/pulsing-circle"
-import ShaderBackground from "@/components/shader-background"
+import BookingDashboard from "@/components/booking-dashboard"
+import LiquidBackground from "@/components/liquid-background"
 
-export default function ShaderShowcase() {
+export default function DeepBookingPlatform() {
   return (
-    <ShaderBackground>
-      <Header />
-      <HeroContent />
-      <PulsingCircle />
-    </ShaderBackground>
+    <LiquidBackground>
+      <BookingDashboard />
+    </LiquidBackground>
   )
 }

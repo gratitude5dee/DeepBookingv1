@@ -87,15 +87,6 @@ export default function MapboxMap({ venues, selectedVenue, onVenueSelect, classN
 
     // Add new markers
     venues.forEach((venue) => {
-      const lat = venue.latitude || venue.lat
-      const lng = venue.longitude || venue.lng
-
-      // Skip venues with invalid coordinates
-      if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        console.warn(`[v0] Skipping venue ${venue.name} - invalid coordinates:`, { lat, lng })
-        return
-      }
-
       const markerColor = getMarkerColor(venue.type)
 
       // Create marker element
@@ -123,7 +114,7 @@ export default function MapboxMap({ venues, selectedVenue, onVenueSelect, classN
         markerEl.style.zIndex = "1"
       })
 
-      const marker = new mapboxgl.Marker(markerEl).setLngLat([lng, lat]).addTo(map.current)
+      const marker = new mapboxgl.Marker(markerEl).setLngLat([venue.longitude, venue.latitude]).addTo(map.current)
 
       // Create popup
       const popup = new mapboxgl.Popup({
@@ -157,17 +148,9 @@ export default function MapboxMap({ venues, selectedVenue, onVenueSelect, classN
     if (venues.length > 0) {
       const bounds = new mapboxgl.LngLatBounds()
       venues.forEach((venue) => {
-        const lat = venue.latitude || venue.lat
-        const lng = venue.longitude || venue.lng
-        if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-          bounds.extend([lng, lat])
-        }
+        bounds.extend([venue.longitude, venue.latitude])
       })
-
-      // Only fit bounds if we have valid coordinates
-      if (!bounds.isEmpty()) {
-        map.current.fitBounds(bounds, { padding: 50 })
-      }
+      map.current.fitBounds(bounds, { padding: 50 })
     }
   }, [venues, mapboxgl, onVenueSelect])
 
@@ -175,16 +158,11 @@ export default function MapboxMap({ venues, selectedVenue, onVenueSelect, classN
   useEffect(() => {
     if (!selectedVenue || !map.current) return
 
-    const lat = selectedVenue.latitude || selectedVenue.lat
-    const lng = selectedVenue.longitude || selectedVenue.lng
-
-    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-      map.current.flyTo({
-        center: [lng, lat],
-        zoom: 15,
-        duration: 1000,
-      })
-    }
+    map.current.flyTo({
+      center: [selectedVenue.longitude, selectedVenue.latitude],
+      zoom: 15,
+      duration: 1000,
+    })
   }, [selectedVenue])
 
   const getMarkerColor = (type: string): string => {

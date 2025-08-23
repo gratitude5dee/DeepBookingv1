@@ -4,82 +4,80 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens to match dramatic lighting design brief */
-  --background: #000000; /* Pure black background */
-  --foreground: oklch(1 0 0); /* Pure white for text and highlights */
-  --card: oklch(0.95 0 0); /* Light gray for subtle backgrounds */
-  --card-foreground: oklch(0 0 0); /* Black text on light cards */
-  --popover: oklch(1 0 0); /* White for popover backgrounds */
-  --popover-foreground: oklch(0 0 0); /* Black text in popovers */
-  --primary: oklch(0.65 0.2 270); /* Violet accent for highlights */
-  --primary-foreground: oklch(1 0 0); /* White text on violet */
-  --secondary: oklch(0.95 0 0); /* Light gray for secondary elements */
-  --secondary-foreground: oklch(0 0 0); /* Black text on secondary */
-  --muted: oklch(0.25 0 0); /* Dark gray for muted elements */
-  --muted-foreground: oklch(0.95 0 0); /* Light gray text for muted */
-  --accent: oklch(0.65 0.2 270); /* Violet for interactive elements */
-  --accent-foreground: oklch(1 0 0); /* White text on accent */
-  --destructive: oklch(0.6 0.2 40); /* Amber for destructive actions */
-  --destructive-foreground: oklch(1 0 0); /* White text for destructive */
-  --border: oklch(1 0 0); /* White borders for contrast */
-  --input: oklch(0.95 0 0); /* Light gray for inputs */
-  --ring: oklch(0.65 0.2 270); /* Violet for focus rings */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.5rem; /* Softer rounded corners */
-  --sidebar: oklch(0 0 0); /* Black sidebar */
-  --sidebar-foreground: oklch(1 0 0); /* White sidebar text */
-  --sidebar-primary: oklch(0.65 0 0); /* Violet for primary sidebar */
-  --sidebar-primary-foreground: oklch(1 0 0); /* White text on sidebar primary */
-  --sidebar-accent: oklch(0.95 0 0); /* Light gray for sidebar accent */
-  --sidebar-accent-foreground: oklch(0 0 0); /* Black text on sidebar accent */
-  --sidebar-border: oklch(1 0 0); /* White sidebar borders */
-  --sidebar-ring: oklch(0.65 0.2 270); /* Violet for sidebar focus */
-  --font-instrument-serif: "Instrument Serif", serif; /* Instrument Serif font family configuration */
-  /* Added Figtree as the primary font variable */
-  --font-figtree: "Figtree", sans-serif; /* Figtree font family configuration */
+  /* Updated color tokens to match liquid glassmorphism design brief */
+  --background: #ecfeff; /* Soft cyan background for dashboard */
+  --foreground: #475569; /* Slate gray for primary text */
+  --card: rgba(255, 255, 255, 0.8); /* Translucent white for glass panels */
+  --card-foreground: #164e63; /* Cyan-800 text on cards */
+  --popover: rgba(255, 255, 255, 0.9); /* More opaque white for popovers */
+  --popover-foreground: #374151; /* Gray text in popovers */
+  --primary: #164e63; /* Cyan-800 for primary actions */
+  --primary-foreground: #ffffff; /* White text on primary */
+  --secondary: #84cc16; /* Lime accent for secondary actions */
+  --secondary-foreground: #ffffff; /* White text on secondary */
+  --muted: rgba(0, 0, 0, 0.6); /* Semi-transparent black for muted */
+  --muted-foreground: #ffffff; /* White text for muted elements */
+  --accent: #84cc16; /* Lime accent for highlights */
+  --accent-foreground: #164e63; /* Cyan text on accent */
+  --destructive: #ef4444; /* Red for destructive actions */
+  --destructive-foreground: #ffffff; /* White text for destructive */
+  --border: rgba(255, 255, 255, 0.2); /* Subtle translucent borders */
+  --input: rgba(255, 255, 255, 0.8); /* Translucent input backgrounds */
+  --ring: rgba(0, 0, 0, 0.2); /* Subtle focus rings */
+  --chart-1: #15803d;
+  --chart-2: #6366f1;
+  --chart-3: #ef4444;
+  --chart-4: #fbbf24;
+  --chart-5: #3b82f6;
+  --radius: 0.5rem; /* Softer rounded corners for glass panels */
+  --sidebar: rgba(255, 255, 255, 0.9); /* Translucent sidebar */
+  --sidebar-foreground: #164e63; /* Cyan text in sidebar */
+  --sidebar-primary: #ecfeff; /* Light cyan for primary sidebar */
+  --sidebar-primary-foreground: #475569; /* Slate text on primary sidebar */
+  --sidebar-accent: #84cc16; /* Lime accent in sidebar */
+  --sidebar-accent-foreground: #ffffff; /* White text on sidebar accent */
+  --sidebar-border: rgba(255, 255, 255, 0.1); /* Subtle sidebar borders */
+  --sidebar-ring: rgba(0, 0, 0, 0.1); /* Subtle sidebar focus rings */
+  --font-instrument-serif: "Instrument Serif", serif;
+  --font-figtree: "Figtree", sans-serif;
 }
 
 .dark {
-  /* Dark mode maintains the same dramatic black background theme */
-  --background: #000000;
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.1 0 0);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.7 0.25 270);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.7 0.25 270);
-  --accent-foreground: oklch(0 0 0);
-  --destructive: oklch(0.5 0.2 40);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.3 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.7 0.25 270);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.05 0 0);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.7 0.25 270);
-  --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.3 0 0);
-  --sidebar-ring: oklch(0.7 0.25 270);
-  --font-instrument-serif: "Instrument Serif", serif; /* Instrument Serif font family configuration */
-  /* Added Figtree font variable for dark mode consistency */
-  --font-figtree: "Figtree", sans-serif; /* Figtree font family configuration */
+  /* Dark mode with glassmorphism adjustments */
+  --background: #0f172a; /* Dark slate background */
+  --foreground: #f1f5f9; /* Light slate text */
+  --card: rgba(15, 23, 42, 0.8); /* Dark translucent cards */
+  --card-foreground: #f1f5f9; /* Light text on dark cards */
+  --popover: rgba(15, 23, 42, 0.9); /* Dark popover background */
+  --popover-foreground: #f1f5f9; /* Light text in popovers */
+  --primary: #0891b2; /* Cyan-600 for primary in dark mode */
+  --primary-foreground: #ffffff; /* White text on primary */
+  --secondary: #84cc16; /* Keep lime accent */
+  --secondary-foreground: #ffffff; /* White text on secondary */
+  --muted: rgba(255, 255, 255, 0.6); /* Semi-transparent white for muted */
+  --muted-foreground: #0f172a; /* Dark text for muted elements */
+  --accent: #84cc16; /* Keep lime accent */
+  --accent-foreground: #0f172a; /* Dark text on accent */
+  --destructive: #ef4444; /* Keep red for destructive */
+  --destructive-foreground: #ffffff; /* White text for destructive */
+  --border: rgba(255, 255, 255, 0.1); /* Subtle light borders */
+  --input: rgba(15, 23, 42, 0.8); /* Dark translucent inputs */
+  --ring: rgba(255, 255, 255, 0.2); /* Light focus rings */
+  --chart-1: #22c55e;
+  --chart-2: #8b5cf6;
+  --chart-3: #f87171;
+  --chart-4: #fbbf24;
+  --chart-5: #60a5fa;
+  --sidebar: rgba(15, 23, 42, 0.9); /* Dark translucent sidebar */
+  --sidebar-foreground: #f1f5f9; /* Light text in sidebar */
+  --sidebar-primary: #1e293b; /* Darker slate for primary sidebar */
+  --sidebar-primary-foreground: #f1f5f9; /* Light text on primary sidebar */
+  --sidebar-accent: #84cc16; /* Keep lime accent */
+  --sidebar-accent-foreground: #0f172a; /* Dark text on sidebar accent */
+  --sidebar-border: rgba(255, 255, 255, 0.05); /* Very subtle sidebar borders */
+  --sidebar-ring: rgba(255, 255, 255, 0.1); /* Light sidebar focus rings */
+  --font-instrument-serif: "Instrument Serif", serif;
+  --font-figtree: "Figtree", sans-serif;
 }
 
 @theme inline {
@@ -138,4 +136,186 @@
 
 .instrument {
   font-family: var(--font-instrument-serif);
+}
+
+/* Enhanced glassmorphism utility classes with better contrast and visual hierarchy */
+.glass-panel {
+  backdrop-filter: blur(32px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.glass-card {
+  backdrop-filter: blur(24px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Enhanced stats card styling with better text shadows and readability */
+.stats-card {
+  backdrop-filter: blur(28px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+}
+
+.stats-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Improved text contrast and readability with enhanced shadows */
+.stats-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #000000;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(255, 255, 255, 0.2), 0 0 8px rgba(0, 0, 0, 0.1);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.stats-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.stats-change {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced dark mode glassmorphism with better depth */
+.dark .glass-panel {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.dark .glass-card:hover {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .stats-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset
+    0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.dark .stats-card:hover {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .stats-number {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.dark .stats-label {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .stats-change {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Added text shadow utility class for better readability */
+.text-shadow-lg {
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(255, 255, 255, 0.2), 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.floating-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: float 6s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotate(120deg);
+  }
+  66% {
+    transform: translateY(10px) rotate(240deg);
+  }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }

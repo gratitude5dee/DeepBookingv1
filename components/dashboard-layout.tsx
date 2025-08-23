@@ -43,50 +43,39 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <ShaderBackground>
       <div className="flex min-h-screen">
-        <nav className="w-72 bg-white/8 backdrop-blur-xl border-r border-white/15 p-8">
-          <div className="mb-10">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+        {/* Sidebar */}
+        <nav className="w-64 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
               DeepBooking
             </h1>
-            <p className="text-white/60 text-sm mt-2">Intelligent venue booking</p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-300 group",
+                  "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200",
                   pathname === item.href
-                    ? "bg-white/20 text-white border border-white/25 shadow-lg shadow-white/5"
-                    : "text-white/75 hover:text-white hover:bg-white/12 hover:border-white/20 border border-transparent",
+                    ? "bg-white/20 text-white border border-white/20"
+                    : "text-white/70 hover:text-white hover:bg-white/10",
                 )}
               >
-                <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
-                <span className="font-medium text-base">{item.label}</span>
+                <span className="text-lg">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
               </Link>
             ))}
-          </div>
-
-          <div className="mt-auto pt-8 border-t border-white/10">
-            <div className="flex items-center space-x-3 p-4 rounded-2xl bg-white/5">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">U</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm truncate">User Account</p>
-                <p className="text-white/60 text-xs">Premium Plan</p>
-              </div>
-            </div>
           </div>
         </nav>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <header className="bg-white/8 backdrop-blur-xl border-b border-white/15 p-8">
+          {/* Header */}
+          <header className="bg-white/5 backdrop-blur-xl border-b border-white/10 p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1 max-w-3xl">
+              <div className="flex-1 max-w-2xl">
                 <div className="relative">
                   <Input
                     type="text"
@@ -94,12 +83,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="w-full bg-white/12 border-white/25 text-white placeholder:text-white/60 pr-14 rounded-2xl h-14 text-base focus:bg-white/15 focus:border-white/30 transition-all duration-200"
+                    className="w-full bg-white/10 border-white/20 text-white placeholder:text-white/50 pr-12 rounded-xl"
                   />
                   <Button
                     onClick={handleSearch}
                     size="sm"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-xl"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-3"
                   >
                     🔍
                   </Button>
@@ -107,7 +96,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
 
               <Button
-                className="ml-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-2xl px-6 py-3 h-14 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-200"
+                className="ml-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl"
                 onClick={() => (window.location.href = "/dashboard/bookings/new")}
               >
                 + Create Booking
@@ -115,7 +104,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </header>
 
-          <main className="flex-1 p-8 overflow-auto">{children}</main>
+          {/* Page Content */}
+          <main className="flex-1 p-6">{children}</main>
         </div>
       </div>
     </ShaderBackground>
