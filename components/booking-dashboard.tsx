@@ -71,10 +71,9 @@ export default function BookingDashboard() {
           <div className="flex items-center justify-between mb-10">
             <div className="space-y-1">
               <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-                DeepBooking
+                {"Booky : Get Booked"}
               </h1>
-              <p className="text-sm text-black/80 font-medium">Booking Platform</p>
-            </div>
+              <p className="text-sm text-black/80 font-medium">+1 (415) 212 68666       </div>
             <Button
               variant="ghost"
               size="sm"
