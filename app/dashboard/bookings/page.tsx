@@ -159,10 +159,24 @@ export default function BookingsPage() {
     return booking.status === activeTab
   })
 
-  const handleSendCounterOffer = (bookingId: string, amount: string) => {
-    // Handle counter offer logic
-    console.log(`Sending counter offer for booking ${bookingId}: ${amount}`)
-    alert(`Counter offer of ${amount} sent!`)
+  const handleSendCounterOffer = async (bookingId: string, amount: string) => {
+    const email = typeof window !== "undefined" ? window.prompt("Recipient email for counter-offer (optional)") : ""
+    try {
+      await fetch("/api/bookings/reneg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId,
+          amount: Number((amount || "").replace(/[^0-9.]/g, "")) || undefined,
+          sendEmail: !!email,
+          recipientEmail: email || undefined,
+          message: `Counter-offer: ${amount}`,
+        }),
+      })
+      alert(`Counter offer of ${amount} sent!`)
+    } catch {
+      alert("Failed to send counter-offer")
+    }
   }
 
   const handleAcceptOffer = (bookingId: string) => {

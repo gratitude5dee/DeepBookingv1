@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Filter, SortAsc } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const sampleVenues = [
   {
     id: "1",
     name: "The Fillmore",
     location: "San Francisco, CA",
+    contactEmail: "booking@thefillmore.com",
     capacity: 1150,
     imageUrl: "/placeholder-c3ww0.png",
     amenities: ["Sound System", "Lighting", "Bar", "Merchandise Stand"],
@@ -26,6 +28,7 @@ const sampleVenues = [
     id: "2",
     name: "The Independent",
     location: "San Francisco, CA",
+    contactEmail: "booking@theindependentsf.com",
     capacity: 500,
     imageUrl: "/placeholder-tdmg1.png",
     amenities: ["Sound System", "Lighting", "Bar", "Photo Pit"],
@@ -40,6 +43,7 @@ const sampleVenues = [
     id: "3",
     name: "Fox Theater",
     location: "Oakland, CA",
+    contactEmail: "booking@foxtheateroakland.com",
     capacity: 2800,
     imageUrl: "/placeholder-hd4mh.png",
     amenities: ["Sound System", "Lighting", "Bar", "VIP Area", "Balcony"],
@@ -55,6 +59,7 @@ const sampleVenues = [
     id: "4",
     name: "The Catalyst",
     location: "Santa Cruz, CA",
+    contactEmail: "booking@catalystclub.com",
     capacity: 800,
     imageUrl: "/placeholder-6g5z9.png",
     amenities: ["Sound System", "Lighting", "Bar", "Dance Floor"],
@@ -67,6 +72,7 @@ const sampleVenues = [
     id: "5",
     name: "The Warfield",
     location: "San Francisco, CA",
+    contactEmail: "booking@thewarfieldtheatre.com",
     capacity: 2300,
     imageUrl: "/warfield-theater.png",
     amenities: ["Sound System", "Lighting", "Bar", "Balcony", "VIP"],
@@ -82,6 +88,7 @@ const sampleVenues = [
     id: "6",
     name: "Great American Music Hall",
     location: "San Francisco, CA",
+    contactEmail: "booking@gamh.com",
     capacity: 470,
     imageUrl: "/great-american-music-hall.png",
     amenities: ["Sound System", "Lighting", "Bar", "Balcony"],
@@ -100,6 +107,7 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [venues, setVenues] = useState(sampleVenues)
+  const [strategy, setStrategy] = useState<"booking" | "venue">("booking")
 
   const filteredVenues = venues.filter((venue) => {
     const matchesSearch =
@@ -118,6 +126,27 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
       ),
     )
     onVenueAction?.("send_offer", venueId, { offer, date })
+
+    ;(async () => {
+      try {
+        const venue = venues.find((v) => v.id === venueId)
+        const res = await fetch("/api/agentmail/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bookingId: venueId,
+            venueId,
+            venueName: venue?.name || "Venue",
+            venueSlug: venue?.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+            offerAmount: offer,
+            showDate: date,
+            recipientEmail: (venue as any)?.contactEmail || "",
+            strategy,
+          }),
+        })
+        await res.json().catch(() => ({}))
+      } catch {}
+    })()
   }
 
   const handleConfirm = (venueId: string) => {
@@ -162,6 +191,18 @@ export default function VenueGrid({ onVenueAction }: VenueGridProps) {
               <SortAsc className="w-4 h-4 mr-2" />
               Sort
             </Button>
+        <div className="flex items-center gap-2 mt-4">
+          <span className="text-sm text-muted-foreground">From Address Strategy</span>
+          <Select value={strategy} onValueChange={(v) => setStrategy(v as "booking" | "venue")}>
+            <SelectTrigger className="w-[220px] glass-card bg-transparent">
+              <SelectValue placeholder="Select strategy" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="booking">Per-booking (bq-&lt;id&gt;@5-dee.com)</SelectItem>
+              <SelectItem value="venue">Per-venue (&lt;venue-slug&gt;@5-dee.com)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
           </div>
         </div>
 

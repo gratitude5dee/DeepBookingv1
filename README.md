@@ -1,3 +1,15 @@
+AgentMail integration quickstart
+
+- Domain: 5-dee.com
+- Addresses:
+  - Per-booking: bq-&lt;bookingId&gt;@5-dee.com
+  - Per-venue: &lt;venue-slug&gt;@5-dee.com
+- API:
+  - POST /api/agentmail/initiate
+- Migration: scripts/004_add_agentmail.sql
+- Env: see .env.local.example
+
+
 # Shaders Hero Section
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*

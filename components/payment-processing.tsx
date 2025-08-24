@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,43 +23,37 @@ interface PaymentLink {
   transactionId?: string
 }
 
-const mockPayments: PaymentLink[] = [
-  {
-    id: "1",
-    bookingId: "BK001",
-    venueName: "The Fillmore",
-    artistName: "Electric Dreams",
-    amount: 2500,
-    status: "paid",
-    createdAt: "2024-12-01",
-    paidAt: "2024-12-02",
-    paymentMethod: "Credit Card",
-    transactionId: "txn_1234567890",
-  },
-  {
-    id: "2",
-    bookingId: "BK002",
-    venueName: "Fox Theater",
-    artistName: "Midnight Groove",
-    amount: 3200,
-    status: "pending",
-    createdAt: "2024-12-05",
-  },
-  {
-    id: "3",
-    bookingId: "BK003",
-    venueName: "The Independent",
-    artistName: "Sonic Wave",
-    amount: 1800,
-    status: "failed",
-    createdAt: "2024-12-08",
-  },
-]
+const mockPayments: PaymentLink[] = []
 
 export default function PaymentProcessing() {
   const [payments, setPayments] = useState<PaymentLink[]>(mockPayments)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [formBookingId, setFormBookingId] = useState("")
+  const [formAmount, setFormAmount] = useState("")
   const { toast } = useToast()
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await fetch("/api/payments")
+        const j = await res.json()
+        const items = (j?.data || []) as any[]
+        const mapped: PaymentLink[] = items.map((r) => ({
+          id: r.id,
+          bookingId: r.booking_id,
+          venueName: r.venue_name || "",
+          artistName: r.artist_name || "",
+          amount: Number(r.amount || 0),
+          status: r.status,
+          createdAt: r.created_at,
+          paidAt: r.paid_at || undefined,
+          paymentMethod: r.payment_method || undefined,
+          transactionId: r.payment_intent_id || undefined,
+        }))
+        setPayments(mapped)
+      } catch {}
+    })()
+  }, [])
 
   const getStatusColor = (status: PaymentLink["status"]) => {
     switch (status) {
@@ -91,12 +85,41 @@ export default function PaymentProcessing() {
     }
   }
 
-  const handleCreatePaymentLink = () => {
-    toast({
-      title: "Payment Link Created",
-      description: "A new payment link has been generated and sent to the artist.",
-    })
-    setIsDialogOpen(false)
+  const handleCreatePaymentLink = async () => {
+    if (!formBookingId || !formAmount) {
+      toast({ title: "Missing fields", description: "Booking ID and Amount are required.", variant: "destructive" as any })
+      return
+    }
+    try {
+      const res = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: formBookingId, amount: Number(formAmount) }),
+      })
+      if (!res.ok) throw new Error("create_failed")
+      const list = await fetch("/api/payments")
+      const j = await list.json()
+      const items = (j?.data || []) as any[]
+      const mapped: PaymentLink[] = items.map((r) => ({
+        id: r.id,
+        bookingId: r.booking_id,
+        venueName: r.venue_name || "",
+        artistName: r.artist_name || "",
+        amount: Number(r.amount || 0),
+        status: r.status,
+        createdAt: r.created_at,
+        paidAt: r.paid_at || undefined,
+        paymentMethod: r.payment_method || undefined,
+        transactionId: r.payment_intent_id || undefined,
+      }))
+      setPayments(mapped)
+      toast({ title: "Payment Link Created", description: "A new payment link has been created." })
+      setIsDialogOpen(false)
+      setFormBookingId("")
+      setFormAmount("")
+    } catch {
+      toast({ title: "Failed to create", description: "Please try again.", variant: "destructive" as any })
+    }
   }
 
   const handleRetryPayment = (paymentId: string) => {
@@ -136,27 +159,18 @@ export default function PaymentProcessing() {
                   <DialogTitle>Create Payment Link</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Select>
-                    <SelectTrigger className="glass-panel border-0">
-                      <SelectValue placeholder="Select Booking" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BK004">BK004 - The Warfield - Rock Band X</SelectItem>
-                      <SelectItem value="BK005">BK005 - Great American Music Hall - Jazz Trio</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input placeholder="Payment Amount ($)" className="glass-panel border-0" />
-                  <Input placeholder="Payment Description" className="glass-panel border-0" />
-                  <Select>
-                    <SelectTrigger className="glass-panel border-0">
-                      <SelectValue placeholder="Payment Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="deposit">Deposit (50%)</SelectItem>
-                      <SelectItem value="full">Full Payment</SelectItem>
-                      <SelectItem value="balance">Balance Payment</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    placeholder="Booking ID"
+                    className="glass-panel border-0"
+                    value={formBookingId}
+                    onChange={(e: any) => setFormBookingId(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Payment Amount ($)"
+                    className="glass-panel border-0"
+                    value={formAmount}
+                    onChange={(e: any) => setFormAmount(e.target.value)}
+                  />
                   <div className="flex gap-2">
                     <Button onClick={handleCreatePaymentLink} className="bg-primary hover:bg-primary/90">
                       Create Payment Link
@@ -245,6 +259,29 @@ export default function PaymentProcessing() {
                       {payment.transactionId && (
                         <p className="text-xs text-muted-foreground">Transaction: {payment.transactionId}</p>
                       )}
+                      {payment.status === "pending" && (
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            const email = typeof window !== "undefined" ? window.prompt("Recipient email to send link") : ""
+                            if (!email) return
+                            try {
+                              const res = await fetch("/api/payments/send", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ paymentId: payment.id, recipientEmail: email }),
+                              })
+                              if (!res.ok) throw new Error("send_failed")
+                              ;(window as any).toast && (window as any).toast.success?.("Payment link sent")
+                            } catch {}
+                          }}
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          Send Link
+                        </Button>
+                      )}
+
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
